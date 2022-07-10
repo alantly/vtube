@@ -34,6 +34,18 @@ function onResult(canvasCtx, width, height) {
   }
 }
 
+const faceMesh = new FaceMesh.FaceMesh({locateFile: (file) => {
+  console.log(file)
+  return `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh@0.4.1633559619/${file}`;
+}});
+
+faceMesh.setOptions({
+  maxNumFaces: 1,
+  refineLandmarks: true,
+  minDetectionConfidence: 0.5,
+  minTrackingConfidence: 0.5
+});
+
 export default class App extends React.Component<{}, AppState> {
   constructor(props) {
     super(props);
@@ -48,15 +60,6 @@ export default class App extends React.Component<{}, AppState> {
     const canvasElement = (document.getElementById('output_canvas') as HTMLCanvasElement)!;
     const canvasCtx = canvasElement.getContext('2d');
 
-    const faceMesh = new FaceMesh.FaceMesh({locateFile: (file) => {
-      return `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`;
-    }});
-    faceMesh.setOptions({
-      maxNumFaces: 1,
-      refineLandmarks: true,
-      minDetectionConfidence: 0.5,
-      minTrackingConfidence: 0.5
-    });
     faceMesh.onResults(onResult(canvasCtx, canvasElement.width, canvasElement.height));
 
     const camera = new CameraUtils.Camera(videoElement, {
