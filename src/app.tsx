@@ -4,14 +4,19 @@ import ReactDOM from "react-dom";
 import * as CameraUtils from '@mediapipe/camera_utils/camera_utils';
 import * as FaceMesh from '@mediapipe/face_mesh/face_mesh';
 import { drawConnectors } from '@mediapipe/drawing_utils/drawing_utils';
+import * as Kalidokit from 'kalidokit';
 
 interface AppState {
   camera: CameraUtils.Camera;
   on: boolean;
 }
 
-function onResult(canvasCtx, width, height) {
+function onResult(videoElement, canvasCtx, width, height) {
   return (results) => {
+
+    const facelm = results.multiFaceLandmarks[0];
+    //const faceRig = Kalidokit.Face.solve(facelm,{ runtime:'mediapipe', video: videoElement })
+
     canvasCtx.save();
     canvasCtx.clearRect(0, 0, width, height);
     canvasCtx.drawImage(
@@ -35,7 +40,6 @@ function onResult(canvasCtx, width, height) {
 }
 
 const faceMesh = new FaceMesh.FaceMesh({locateFile: (file) => {
-  console.log(file)
   return `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh@0.4.1633559619/${file}`;
 }});
 
@@ -60,7 +64,7 @@ export default class App extends React.Component<{}, AppState> {
     const canvasElement = (document.getElementById('output_canvas') as HTMLCanvasElement)!;
     const canvasCtx = canvasElement.getContext('2d');
 
-    faceMesh.onResults(onResult(canvasCtx, canvasElement.width, canvasElement.height));
+    faceMesh.onResults(onResult(videoElement, canvasCtx, canvasElement.width, canvasElement.height));
 
     const camera = new CameraUtils.Camera(videoElement, {
       onFrame: async () => {
