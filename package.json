@@ -26,6 +26,8 @@
     "@mediapipe/drawing_utils": "^0.3.1657299202",
     "@mediapipe/face_mesh": "^0.4.1657299874",
     "kalidokit": "^1.1.5",
+    "pixi": "^0.3.1",
+    "pixi-live2d-display": "^0.3.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   }

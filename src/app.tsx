@@ -5,10 +5,19 @@ import * as CameraUtils from '@mediapipe/camera_utils/camera_utils';
 import * as FaceMesh from '@mediapipe/face_mesh/face_mesh';
 import { drawConnectors } from '@mediapipe/drawing_utils/drawing_utils';
 import * as Kalidokit from 'kalidokit';
+import * as PIXI from 'pixi';
+import { Live2DModel } from 'pixi-live2d-display/lib/cubism4';
+
+declare global {
+  interface Window {
+    PIXI: any;
+  }
+}
+
+window.PIXI = PIXI;
 
 interface AppState {
   camera: CameraUtils.Camera;
-  on: boolean;
 }
 
 function onResult(videoElement, canvasCtx, width, height) {
@@ -55,16 +64,29 @@ export default class App extends React.Component<{}, AppState> {
     super(props);
     this.state = {
       camera: null,
-      on: false,
     };
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     const videoElement = document.getElementById('input_video');
     const canvasElement = (document.getElementById('output_canvas') as HTMLCanvasElement)!;
-    const canvasCtx = canvasElement.getContext('2d');
 
-    faceMesh.onResults(onResult(videoElement, canvasCtx, canvasElement.width, canvasElement.height));
+    const pixiApp = new PIXI.Application({
+      view: canvasElement,
+      width: 500,
+	    height: 500,
+    });
+    const model = await Live2DModel.from("https://cdn.jsdelivr.net/gh/guansss/pixi-live2d-display/test/assets/haru/haru_greeter_t03.model3.json", { autoInteract: false });
+
+    // faceMesh.onResults(onResult(videoElement, canvasCtx, canvasElement.width, canvasElement.height));
+    pixiApp.stage.addChild(model)
+
+    model.x = 250;
+    model.y = 250;
+    model.rotation = Math.PI;
+    model.skew.x = Math.PI;
+    model.scale.set(0.1);
+    model.anchor.set(0.5, 0.5);
 
     const camera = new CameraUtils.Camera(videoElement, {
       onFrame: async () => {
@@ -77,14 +99,6 @@ export default class App extends React.Component<{}, AppState> {
     this.setState({ camera })
   }
 
-  onToggle = () => {
-    if (this.state.on) {
-      this.setState({ on: false })
-    } else {
-      this.setState({ on: true })
-    }
-  }
-
   onCamera = () => {
     this.state.camera.start();
   }
@@ -93,9 +107,8 @@ export default class App extends React.Component<{}, AppState> {
     return (
       <>
           <video id="input_video"></video>
-          <canvas id="output_canvas" width="1280px" height="720px"></canvas>
+          <canvas id="output_canvas"></canvas>
           <button onClick={this.onCamera}>Turn on</button>
-          <button onClick={this.onToggle}>Toggle</button>
       </>
     );
   }
