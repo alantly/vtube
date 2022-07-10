@@ -76,13 +76,13 @@ export default class App extends React.Component<{}, AppState> {
       width: 500,
 	    height: 500,
     });
-    const model = await Live2DModel.from("https://cdn.jsdelivr.net/gh/guansss/pixi-live2d-display/test/assets/haru/haru_greeter_t03.model3.json", { autoInteract: false });
+    const model = await Live2DModel.from("mao_pro_en/runtime/mao_pro_t01.model3.json", { autoInteract: false });
 
     // faceMesh.onResults(onResult(videoElement, canvasCtx, canvasElement.width, canvasElement.height));
     pixiApp.stage.addChild(model)
 
     model.x = 250;
-    model.y = 250;
+    model.y = 500;
     model.rotation = Math.PI;
     model.skew.x = Math.PI;
     model.scale.set(0.1);
