@@ -12,37 +12,13 @@ interface AppState {
   camera: CameraUtils.Camera;
 }
 
-
-function onResult(canvasElement, canvasCtx) {
+function onResult(effectRenderer) {
   return (results) => {
-    canvasCtx.save();
-    canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
-    canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
-    if (results.multiFaceLandmarks) {
-      for (const landmarks of results.multiFaceLandmarks) {
-        drawConnectors(canvasCtx, landmarks, FaceMesh.FACEMESH_TESSELATION, {color: '#C0C0C070', lineWidth: 1});
-        drawConnectors(canvasCtx, landmarks, FaceMesh.FACEMESH_RIGHT_EYE, {color: '#FF3030'});
-        drawConnectors(canvasCtx, landmarks, FaceMesh.FACEMESH_RIGHT_EYEBROW, {color: '#FF3030'});
-        drawConnectors(canvasCtx, landmarks, FaceMesh.FACEMESH_RIGHT_IRIS, {color: '#FF3030'});
-        drawConnectors(canvasCtx, landmarks,FaceMesh.FACEMESH_LEFT_EYE, {color: '#30FF30'});
-        drawConnectors(canvasCtx, landmarks,FaceMesh.FACEMESH_LEFT_EYEBROW, {color: '#30FF30'});
-        drawConnectors(canvasCtx, landmarks,FaceMesh.FACEMESH_LEFT_IRIS, {color: '#30FF30'});
-        drawConnectors(canvasCtx, landmarks,FaceMesh.FACEMESH_FACE_OVAL, {color: '#E0E0E0'});
-        drawConnectors(canvasCtx, landmarks,FaceMesh.FACEMESH_LIPS, {color: '#E0E0E0'});
-      }
-    }
-    canvasCtx.restore();
+    effectRenderer.render(results);
   }
 }
 
 
-/* function onResult(effectRenderer) {
- *   return (results) => {
- *     effectRenderer.render(results);
- *   }
- * }
- * 
- *  */
 class EffectRenderer {
   VIDEO_DEPTH = 500;
   FOV_DEGREES = 63;
@@ -56,8 +32,6 @@ class EffectRenderer {
   camera: THREE.PerspectiveCamera;
 
   constructor(canvasElement) {
-    this.camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.01, 10 );
-    this.camera.position.z = 1;
     this.canvasElement = canvasElement;
 
     this.scene = new THREE.Scene();
@@ -154,8 +128,10 @@ const faceMesh = new FaceMesh.FaceMesh({locateFile: (file) => {
 }});
 
 faceMesh.setOptions({
+  selfieMode: true,
+  enableFaceGeometry: true,
   maxNumFaces: 1,
-  refineLandmarks: true,
+  refineLandmarks: false,
   minDetectionConfidence: 0.5,
   minTrackingConfidence: 0.5
 });
@@ -171,11 +147,6 @@ export default class App extends React.Component<{}, AppState> {
   async componentDidMount() {
     const videoElement = document.getElementById('input_video');
     const canvasElement = (document.getElementById('output_canvas') as HTMLCanvasElement)!;
-    const canvasCtx = canvasElement.getContext('2d');
-
-    // const effectRenderer = new EffectRenderer(canvasElement);
-    // faceMesh.onResults(onResult(effectRenderer));
-    faceMesh.onResults(onResult(canvasElement, canvasCtx));
 
     const camera = new CameraUtils.Camera(videoElement, {
       onFrame: async () => {
@@ -184,8 +155,11 @@ export default class App extends React.Component<{}, AppState> {
       width: 500,
       height: 500
     });
-
     this.setState({ camera })
+
+    const effectRenderer = new EffectRenderer(canvasElement);
+    faceMesh.onResults(onResult(effectRenderer));
+
   }
 
   onCamera = () => {

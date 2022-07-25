@@ -24,7 +24,6 @@ module.exports = {
   externals: {
     'react': 'React',
     'react-dom': 'ReactDOM',
-    'pixi': 'PIXI',
   },
   devServer: {
     static: './public',
