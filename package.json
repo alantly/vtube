@@ -14,6 +14,7 @@
   "devDependencies": {
     "@types/react": "^18.0.15",
     "@types/react-dom": "^18.0.6",
+    "@types/three": "^0.142.0",
     "ts-loader": "^9.3.1",
     "typescript": "^4.7.4",
     "webpack": "^5.73.0",
@@ -26,6 +27,7 @@
     "@mediapipe/drawing_utils": "^0.3.1657299202",
     "@mediapipe/face_mesh": "^0.4.1657299874",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "three": "^0.142.0"
   }
 }
